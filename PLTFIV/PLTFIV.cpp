@@ -40,9 +40,9 @@ private:
 };
 
 template <typename T>
-class intersection_volume {
+class intersection_volume_unit_sphere {
 public:
-  intersection_volume(T rho, T eta) {
+  intersection_volume_unit_sphere(T rho, T eta) {
     f.set_variables(rho, eta);
   }
 
@@ -50,23 +50,26 @@ public:
     return r * (T)sqrt(1 - r * r) * f(r, v);
   }
 
+  T integrate(T dr) {
+    double result = 0.;
+    for (double r = 0; r <= 1 - dr; r += dr) {
+      result += runge_kutta_4_step(r, dr, 0., *this);
+    }
+    return 4.0 * result;
+  }
+
  public:
   volume_multiplier_function<T> f;
-
 };
 
 
 
 int main()
 {
-  intersection_volume<double> f(0.05, 0.025);
+  intersection_volume_unit_sphere<double> f(0.05, 0.025);
   double dr = 0.0001;
-  double result = 0.;
-  for (double r = 0; r <= 1 - dr; r += dr) {
-    result += runge_kutta_4_step(r, dr, 0., f);
-    
-  }
-  std::cout << 4. * result << std::endl;
+
+  std::cout << f.integrate(dr) << std::endl;
 
 }
 
