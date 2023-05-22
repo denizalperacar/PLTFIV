@@ -27,10 +27,11 @@ public:
   volume_multiplier_function(T rho, T eta) : rho_(rho), eta_(eta) {}
 
   T operator()(T r, T v) {
-		return 0 * (rho_ < (T)(fabs(eta_ - r))) 
-      + (M_PI) * (rho_ > (eta_ + r))
-      + (acos((eta_ * eta_ + r * r - rho_ * rho_) / (2 * eta_ * r))) 
-      * (rho_ > (T)fabs(eta_ - r) && rho_ < (eta_ + r));
+    T result = 0;
+    if ((rho_ < (T)(fabs(eta_ - r)))) result += 0.;
+    else if ((rho_ > (eta_ + r))) result += M_PI;
+    else result += (acos((eta_ * eta_ + r * r - rho_ * rho_) / (2 * eta_ * r)));
+    return result;
   }
 
 private:
@@ -59,13 +60,13 @@ public:
 int main()
 {
   intersection_volume<double> f(0.05, 0.025);
-  double dr = 0.01;
-  double result = 0;
-  for (double r = 0; r <= 1; r += dr) {
-    result = runge_kutta_4_step(r, dr, 0., f);
-    std::cout << f.f(r, 0.) << std::endl;
+  double dr = 0.0001;
+  double result = 0.;
+  for (double r = 0; r <= 1 - dr; r += dr) {
+    result += runge_kutta_4_step(r, dr, 0., f);
+    
   }
-  
+  std::cout << 4. * result << std::endl;
 
 }
 
